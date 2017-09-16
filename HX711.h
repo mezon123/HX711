@@ -1,10 +1,10 @@
 #ifndef HX711_h
 #define HX711_h
 
-//#include <stdlib.h>
+#include <stdlib.h>
 #include <SoftwareSerial.h>
 #include <Arduino.h>
-//#include <type_def.h>
+
 
 
 
@@ -21,13 +21,15 @@ class HX711
 		byte PD_SCK;	// Power Down and Serial Clock Input Pin
 		byte DOUT;		// Serial Data Output Pin
 		
-		enum GAIN_HX711 GAIN;		// amplification factor
+		//enum GAIN_HX711 GAIN;		// amplification factor
+		byte GAIN;
 		
 		long OFFSET;	// used for tare weight
 		long SCALE;	// used to return weight in grams, kg, ounces, whatever
 		
 
-	public:
+	public:	
+	
 		// define clock and data pin, channel, and gain factor
 		// channel selection is made by passing the appropriate gain: 128 or 64 for channel A, 32 for channel B
 		// gain: 128 or 64 for channel A; channel B works with 32 gain factor only
@@ -42,7 +44,7 @@ class HX711
 		void set_gain(enum GAIN_HX711 gain = CH_A_GAIN_128);
 
 		// waits for the chip to be ready and returns a reading
-		int32_t read(void);
+		uint32_t read(void);
 		
 		
 		
@@ -56,8 +58,9 @@ class HX711
 
 		// returns get_value() divided by SCALE, that is the raw value divided by a value obtained via calibration
 		// times = how many readings to do
-		int32_t get_units(void);
-		ldiv_t show_result(void);
+		long get_units(void);
+		
+		void show_result(void);
 
 		// set the OFFSET value for tare weight; times = how many times to read the tare value
 		void tare(void);

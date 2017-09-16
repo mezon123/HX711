@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include <stdlib.h>
 #include <HX711.h>
-//#include <type_def.h>
 
 
 HX711::HX711(byte dout, byte pd_sck, enum GAIN_HX711 gain) {
@@ -33,18 +32,18 @@ void HX711::set_gain(enum GAIN_HX711 gain)
 //*********************************************************************
 
 //*********************************************************************
-int32_t HX711::read(void) 
+uint32_t HX711::read(void) 
 {
-	uint8_t i = 0;
+	//uint8_t i = 0;
 	
 	union T_HX711_WEIGTH{
-		volatile int32_t data = 0;
+		uint32_t data = 0;
 		struct{
-			volatile int8_t d3;
-			volatile int8_t d2;
-			volatile int8_t d1;
-			volatile int8_t d0;
-		};
+				uint8_t d3;
+				uint8_t d2;
+				uint8_t d1;
+				uint8_t d0;
+			};
 	}hx711_weigth;
 	
 	
@@ -66,9 +65,9 @@ int32_t HX711::read(void)
 		digitalWrite(PD_SCK, HIGH);
 		digitalWrite(PD_SCK, LOW);
 		
-	}while(++i < GAIN);
+	}while(--GAIN);  //while(++i < GAIN);
 	
-	return  (hx711_weigth.data ^ 0x800000);
+	return  (hx711_weigth.data ^ 0x00800000);
 }
 
 //******************************************************************************************************
@@ -110,8 +109,9 @@ int32_t HX711::Bubble_Sort(int32_t *tab, uint8_t n)
 int32_t HX711::Simple_average(void)
 {
 	const uint8_t LIMIT =16;
+	
 	uint8_t i = 0;
-	int32_t sum =0;
+	uint32_t sum = 0;
 	
 	for(i=0; i < LIMIT; i++)
 		sum += read();
@@ -119,7 +119,7 @@ int32_t HX711::Simple_average(void)
 	//sum /= LIMIT;
 	sum >>= 4;  //2^4 = LIMIT
 	
-	return sum;
+	return (long)sum;
 }
 
 
@@ -145,53 +145,55 @@ int32_t HX711::read_hx711_average(void)
 
 int32_t HX711::get_value(void) 
 {
-	//int32_t pom; 
+	long pom; 
 	
+	pom = Simple_average() - OFFSET;
 	
-	//pom = read_hx711_average() - OFFSET;
-	//pom = Simple_average() - OFFSET;
+	if( pom > 0)
+		return pom;
+	else
+		return 0;		
+}
+
+
+ long HX711::get_units(void)
+{
+	unsigned long pom;
+	
+	pom = (unsigned long)get_value();
 		
-	return   Simple_average() - OFFSET;
+	return (100UL * pom )/SCALE;
 }
 
-int32_t HX711::get_units(void)
+
+void HX711::show_result(void)
 {
-	int32_t pom;
+	
+	ldiv_t masaa;
 	
 
-	//pom = (1000L * (read_hx711_average() - OFFSET))/SCALE;
-	pom = (1000UL * (Simple_average() - OFFSET))/SCALE;
+	masaa = ldiv( get_units(), 100L);
 	
-	return pom;
-}
-
-ldiv_t HX711::show_result(void)
-{
-	ldiv_t masa;
-	
-	masa = 	ldiv( get_units(), 1000);
-	
-	
-	  Serial.print("one reading:\t");
-	  Serial.print(masa.quot );
-	  Serial.print(",");
-	  Serial.print(masa.rem );
-	  Serial.print("kg");	  
-	  
-	  Serial.print("\t| average:\t");
-	  Serial.print(masa.quot );
-	  Serial.print(",");
-	  Serial.print(masa.rem );
-	  Serial.println("kg");
-	  
-	  return masa;
+	Serial.print("one reading:\t");
+	Serial.print(masaa.quot );
+	//Serial.print(",");
+	Serial.write(',');
+	Serial.print(masaa.rem );
+	Serial.println("kg");
+	/*
+	Serial.print("\t| average:\t");
+	Serial.print(masaa.quot );
+	Serial.print(",");
+	Serial.print(masaa.rem/10 );
+	Serial.println("kg");
+	*/  
 }
 
 
-void HX711::tare(void) 
+void HX711::tare(void)
 {
 	OFFSET = Simple_average();
-	
+
 	Serial.print("\tOFFSET: \t");
 	Serial.println(OFFSET);
 }
