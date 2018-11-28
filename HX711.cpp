@@ -20,6 +20,20 @@
 #define isLow(P)((*(pinOfPin(P))& pinMask(P))==0)
 #define digitalState(P)((uint8_t)isHigh(P))
 
+/*
+Thus, you can save valuable code space and get dramatically faster execution by changing:
+
+    pinMode( pin, INPUT ); with pinAsInput( pin );
+    pinMode( pin, OUTPUT ); with pinAsOutput( pin );
+    pinMode( pin, INPUT_PULLUP); with pinAsInputPullUp( pin );
+
+    digitalWrite( pin, LOW ); with digitalLow( pin );
+    digitalWrite( pin, HIGH ); with digitalHigh( pin );
+
+    digitalRead( pin ) with digitalState( pin )
+
+
+*/
 
 
 HX711::HX711(byte dout, byte pd_sck, enum GAIN_HX711 gain) {
