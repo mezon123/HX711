@@ -33,7 +33,7 @@ Thus, you can save valuable code space and get dramatically faster execution by 
     digitalRead( pin ) with digitalState( pin )
     
     
-int led = 13;
+const byte led = 13;
 
 void setup() {              
   pinAsOutput(led);
