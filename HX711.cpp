@@ -31,6 +31,20 @@ Thus, you can save valuable code space and get dramatically faster execution by 
     digitalWrite( pin, HIGH ); with digitalHigh( pin );
 
     digitalRead( pin ) with digitalState( pin )
+    
+    
+int led = 13;
+
+void setup() {              
+  pinAsOutput(led);
+}
+
+void loop() {
+  digitalHigh( led );
+  delay( 1000 );
+  digitalLow( led );
+  delay( 1000 );
+}
 
 
 */
